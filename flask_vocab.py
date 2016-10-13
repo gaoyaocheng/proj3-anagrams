@@ -1,5 +1,5 @@
 """
-Simple Flask web site 
+Simple Flask web site
 """
 
 import flask
@@ -27,7 +27,7 @@ app.secret_key = CONFIG.secret_key  # Should allow using session variables
 #
 # One shared 'Vocab' object, read-only after initialization,
 # shared by all threads and instances.  Otherwise we would have to
-# store it in the browser and transmit it on each request/response cycle, 
+# store it in the browser and transmit it on each request/response cycle,
 # or else read it from the file on each request/responce cycle,
 # neither of which would be suitable for responding keystroke by keystroke.
 
@@ -58,64 +58,106 @@ def keep_going():
   """
   flask.g.vocab = WORDS.as_list();
   return flask.render_template('vocab.html')
-  
+
 
 @app.route("/success")
 def success():
   return flask.render_template('success.html')
 
 #######################
-# Form handler.  
+# Form handler.
 # CIS 322 (399se) note:
 #   You'll need to change this to a
 #   a JSON request handler
 #######################
-
-@app.route("/_check", methods = ["POST"])
+@app.route("/_check")
 def check():
-  """
-  User has submitted the form with a word ('attempt')
-  that should be formed from the jumble and on the
-  vocabulary list.  We respond depending on whether
-  the word is on the vocab list (therefore correctly spelled),
-  made only from the jumble letters, and not a word they
-  already found.
-  """
-  app.logger.debug("Entering check")
+  app.logger.debug("Entering checkim")
 
   ## The data we need, from form and from cookie
-  text = request.form["attempt"]
+  text = request.args.get("text", type=str)
   jumble = flask.session["jumble"]
   matches = flask.session.get("matches", []) # Default to empty list
 
-  ## Is it good? 
+  print(text);
+  print(jumble);
+  ## Is it good?
   in_jumble = LetterBag(jumble).contains(text)
   matched = WORDS.has(text)
 
-  ## Respond appropriately 
+  ## Respond appropriately
   if matched and in_jumble and not (text in matches):
+    print("test1")
+    return flask.redirect(url_for("success"))
+    #return flask.redirect("/success")
     ## Cool, they found a new word
     matches.append(text)
     flask.session["matches"] = matches
   elif text in matches:
-    flask.flash("You already found {}".format(text))
+    print("test2")
+    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "You already found {}".format(text)}
   elif not matched:
-    flask.flash("{} isn't in the list of words".format(text))
+    print("test3")
+    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "{} isn't in the list of words".format(text)}
   elif not in_jumble:
-    flask.flash('"{}" can\'t be made from the letters {}'.format(text,jumble))
+    print("test4")
+    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : '"{}" can\'t be made from the letters {}'.format(text,jumble)}
   else:
     app.logger.debug("This case shouldn't happen!")
     assert False  # Raises AssertionError
+  print("test6")
 
-  ## Choose page:  Solved enough, or keep going? 
   if len(matches) >= flask.session["target_count"]:
     return flask.redirect(url_for("success"))
-  else:
-    return flask.redirect(url_for("keep_going"))
+
+  return jsonify(result=rslt)
+
+#@app.route("/_check", methods = ["POST"])
+#def check():
+#  """
+#  User has submitted the form with a word ('attempt')
+#  that should be formed from the jumble and on the
+#  vocabulary list.  We respond depending on whether
+#  the word is on the vocab list (therefore correctly spelled),
+#  made only from the jumble letters, and not a word they
+#  already found.
+#  """
+#  app.logger.debug("Entering check")
+#
+#  ## The data we need, from form and from cookie
+#  text = request.form["attempt"]
+#  jumble = flask.session["jumble"]
+#  matches = flask.session.get("matches", []) # Default to empty list
+#
+#  ## Is it good?
+#  in_jumble = LetterBag(jumble).contains(text)
+#  matched = WORDS.has(text)
+#
+#  ## Respond appropriately
+#  #if matched and in_jumble and not (text in matches):
+#  if in_jumble:
+#    ## Cool, they found a new word
+#    matches.append(text)
+#    flask.session["matches"] = matches
+#  elif text in matches:
+#    flask.flash("You already found {}".format(text))
+#  elif not matched:
+#    flask.flash("{} isn't in the list of words".format(text))
+#  elif not in_jumble:
+#    flask.flash('"{}" can\'t be made from the letters {}'.format(text,jumble))
+#  else:
+#    app.logger.debug("This case shouldn't happen!")
+#    assert False  # Raises AssertionError
+#
+#  # Choose page:  Solved enough, or keep going?
+#  if len(matches) >= flask.session["target_count"]:
+#    return flask.redirect(url_for("success"))
+#  else:
+#    return flask.redirect(url_for("keep_going"))
 
 ###############
-# AJAX request handlers 
-#   These return JSON, rather than rendering pages. 
+# AJAX request handlers
+#   These return JSON, rather than rendering pages.
 ###############
 
 @app.route("/_example")
@@ -139,7 +181,7 @@ def format_filt( something ):
     the Jinja2 code
     """
     return "Not what you asked for"
-  
+
 ###################
 #   Error handlers
 ###################
@@ -168,15 +210,15 @@ def error_403(e):
 #
 
 if __name__ == "__main__":
-    # Standalone. 
+    # Standalone.
     app.debug = True
     app.logger.setLevel(logging.DEBUG)
     print("Opening for global access on port {}".format(CONFIG.PORT))
     app.run(port=CONFIG.PORT, host="0.0.0.0")
 else:
-    # Running from cgi-bin or from gunicorn WSGI server, 
+    # Running from cgi-bin or from gunicorn WSGI server,
     # which makes the call to app.run.  Gunicorn may invoke more than
     # one instance for concurrent service.
-    #FIXME:  Debug cgi interface 
+    #FIXME:  Debug cgi interface
     app.debug=False
 

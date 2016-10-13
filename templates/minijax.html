@@ -77,8 +77,7 @@ $("#entry").submit( function(event) {
 // shift and control, so make sure whatever you do with the
 // event does not depend on it being a letter. 
 //
-$("#attempt").keyup(function(event) {
-   var txt = $("#attempt").val();  // Current content of the input field
+$("#attempt").keyup(function(event) { var txt = $("#attempt").val();  // Current content of the input field
    var keycode = event.which;      // They key that just went up
    var letter = String.fromCharCode(keycode);
 
@@ -100,7 +99,7 @@ $("#attempt").keyup(function(event) {
                 } else {
                    $("#response").append(txt.length + " "); 
                 }
-                showTiles(txt);
+                //showTiles(txt);
                }
            );
    });

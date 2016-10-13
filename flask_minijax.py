@@ -29,9 +29,9 @@ def index():
   return flask.render_template('minijax.html')
 
 ###############
-# AJAX request handlers 
+# AJAX request handlers
 #   These return JSON to the JavaScript function on
-#   an existing page, rather than rendering a new page. 
+#   an existing page, rather than rendering a new page.
 ###############
 
 @app.route("/_countem")
@@ -45,7 +45,7 @@ def countem():
 
 # Run locally
 if __name__ == "__main__":
-    # Standalone. 
+    # Standalone.
     app.debug = True
     app.logger.setLevel(logging.DEBUG)
     print("Opening for global access on port {}".format(CONFIG.PORT))
@@ -55,4 +55,4 @@ if __name__ == "__main__":
 # If we run 'gunicorn flask_minijax:app', we instead get a
 # 'main' inside gunicorn, which loads this file as a module
 # and accesses the Flask 'app' object.
-# 
+#
