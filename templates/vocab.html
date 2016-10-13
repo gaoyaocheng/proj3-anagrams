@@ -54,7 +54,7 @@
   -->
 <div class="row">
   {% for word in g.vocab %}
-    <div class="col-xs-2 text-center"> {{ word }} </div>
+    <div class="col-xs-2 text-center word-item"> {{ word }} </div>
     {% if loop.index is divisibleby 3 %}
     </div> <!-- row -->
     <div class="row">
@@ -112,6 +112,7 @@
 
 <p id="response"> </p>  <!-- JavaScript will insert text here -->
 <p id="msg"> </p> <!-- Illustration of inserting graphics into page -->
+
 <script>
 
 // Suppress normal form submission
@@ -147,17 +148,29 @@ $("#attempt").keyup(function(event) {
                 rsval = data.result.in_jumble;
                 matched = data.result.matched;
                 msg = data.result.msg;
+                words = data.result.words;
                 console.log("rsval: " + rsval)
                 console.log("matched: " + matched)
                 console.log("msg: " + msg)
+                console.log("word: " + words + "|end")
+                $('.word-item').each(function(word) {
+                    lettle = $.trim($(this).text())
+                    console.log("words:" + lettle + "|end")
+                    if ( lettle == words) {
+                        console.log("word: " + words + "highlight")
+                        $(this).addClass('msg');
+                    }
+                })
                 if (matched) {
                    $("#response").append(txt + " "); 
                    $("#attempt").val("");
                 }
-                if (rsval) {
-                   $("#msg").val(msg + ""); 
-                } else {
+                if (!rsval) {
+                   $("#msg").text(msg).addClass('msg'); 
                    $("#attempt").val("");
+                }
+                if(success) {
+                   window.location.href = '/success'
                 }
                }
            );

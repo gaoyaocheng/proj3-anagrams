@@ -87,28 +87,22 @@ def check():
 
   ## Respond appropriately
   if matched and in_jumble and not (text in matches):
-    print("test1")
-    return flask.redirect(url_for("success"))
-    #return flask.redirect("/success")
+    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "", "words" : text}
     ## Cool, they found a new word
     matches.append(text)
     flask.session["matches"] = matches
   elif text in matches:
-    print("test2")
     rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "You already found {}".format(text)}
   elif not matched:
-    print("test3")
     rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "{} isn't in the list of words".format(text)}
   elif not in_jumble:
-    print("test4")
     rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : '"{}" can\'t be made from the letters {}'.format(text,jumble)}
   else:
     app.logger.debug("This case shouldn't happen!")
     assert False  # Raises AssertionError
-  print("test6")
 
   if len(matches) >= flask.session["target_count"]:
-    return flask.redirect(url_for("success"))
+    rslt = {"in_jumble": in_jumble, "matched" : matched, "success" : 1}
 
   return jsonify(result=rslt)
 
