@@ -16,7 +16,7 @@ have different anagrams.
 
 ## Authors 
 
-Initial version by  
+version by  YaoCheng Gao
 
 ## Status
 
