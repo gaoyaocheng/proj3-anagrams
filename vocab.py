@@ -10,11 +10,11 @@ class Vocab():
 
     def __init__(self, wordlist):
         """
-        Initialize with the provided word list. 
+        Initialize with the provided word list.
         Args:
            wordlist: a file, path to a file, or a list of strings.
            Words must appear one to a line. Empty lines and lines
-           beginning with # are treated as comments. 
+           beginning with # are treated as comments.
         Returns: nothing
         Effect: the new Vocab objects contains the strings from wordlist
         Raises:  IOError if if wordlist is a bad path
@@ -35,7 +35,7 @@ class Vocab():
     def as_list(self):
         """As list of words"""
         return self.words
-            
+
     def has(self, word):
         """
         Is word present in vocabulary list?
@@ -48,9 +48,9 @@ class Vocab():
         while low <= high:
             mid = (low + high) // 2
             probe = self.words[mid]
-            if word > probe: 
+            if word > probe:
                 low = mid + 1
-            elif word < probe: 
+            elif word < probe:
                 high = mid - 1
             else:
                 return True

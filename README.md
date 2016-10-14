@@ -16,27 +16,32 @@ have different anagrams.
 
 ## Authors 
 
-Initial version by M Young; to be revised by CIS 322 students. 
+Initial version by  
 
 ## Status
 
 flask_vocab.py and the template vocab.html are a 'skeleton' version 
-of the anagram game for a CIS 322 project.  They uses conventional  
-interaction through a form, interacting only when the user submits the form. 
-Your assignment is to replace the interaction with AJAX interaction on each 
-keystroke. 
+use AJAX interaction on each keystroke to send and revieve message to server through json 
 
-## Minijax? 
+Use TrieTree replace vocab for search word in wordlist,which is faster than binary search
 
-flask_minijax.py and templates/minijax.html are a tiny example of using JQuery 
-with flask for an Ajax application.  They should not be included in the
-version of the project you turn in. 
+trietree use dict for search and return the prefix match wordlist for highlight
+
+If the user types a character is not in the anagram, erase it, so that the user gets the illusion that only letters from the anagram "work".
+
+At each keystroke, highlight words from the vocabulary list that contain all the characters that have been typed so far
 
 
 ## To run automated tests 
 * `nosetests`
 
 There are currently nose tests for vocab.py, letterbag.py, and jumble.py. 
+now add trie test for trietree.py to nose tests
+
+## To Install and Run
+    bash ./configure
+    make test    # make all test, should pass 
+    make service # service run background
 
 
 

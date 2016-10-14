@@ -13,6 +13,15 @@
 .message { 
     color: red;
 }
-.msg{ 
+.red_msg{ 
     color: red;
+}
+.blue_msg{ 
+    color: blue;
+}
+.black_msg{ 
+    color: black;
+}
+.highlight_msg{ 
+    background: yellow;
 }

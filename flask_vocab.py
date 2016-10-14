@@ -16,6 +16,7 @@ import sys
 from letterbag import LetterBag
 from vocab import Vocab
 from jumble import jumbled
+from trie import TrieTree
 
 ###
 # Globals
@@ -32,6 +33,7 @@ app.secret_key = CONFIG.secret_key  # Should allow using session variables
 # neither of which would be suitable for responding keystroke by keystroke.
 
 WORDS = Vocab( CONFIG.vocab )
+TREE = TrieTree(WORDS.as_list())
 
 ###
 # Pages
@@ -76,78 +78,52 @@ def check():
 
   ## The data we need, from form and from cookie
   text = request.args.get("text", type=str)
+  print ("text", text)
   jumble = flask.session["jumble"]
   matches = flask.session.get("matches", []) # Default to empty list
 
-  print(text);
-  print(jumble);
+  rslt = {}
+
   ## Is it good?
   in_jumble = LetterBag(jumble).contains(text)
-  matched = WORDS.has(text)
+  matched, rslt["words"] = TREE.search(text)
+  #if len(rslt["words"]) == 0:
+  #    in_jumble = False
 
   ## Respond appropriately
   if matched and in_jumble and not (text in matches):
-    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "", "words" : text}
     ## Cool, they found a new word
+    rslt["msg"] = "Congratulations! You found word {}".format(text);
     matches.append(text)
     flask.session["matches"] = matches
+
   elif text in matches:
-    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "You already found {}".format(text)}
-  elif not matched:
-    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : "{} isn't in the list of words".format(text)}
+    matched = False
+    rslt["msg"] = "You already found {}".format(text);
+
   elif not in_jumble:
-    rslt = {"in_jumble": in_jumble, "matched" : matched, "msg" : '"{}" can\'t be made from the letters {}'.format(text,jumble)}
+    matched = False
+    rslt["msg"] = '"{}" can\'t be made from the letters {}'.format(text,jumble);
+
+  elif not matched:
+    rslt["msg"] = "{} isn't in the list of words".format(text);
+
   else:
     app.logger.debug("This case shouldn't happen!")
     assert False  # Raises AssertionError
 
   if len(matches) >= flask.session["target_count"]:
-    rslt = {"in_jumble": in_jumble, "matched" : matched, "success" : 1}
+    rslt["success"] = True
+
+  else:
+    rslt["success"] = False
+
+  rslt["in_jumble"] = in_jumble
+  rslt["matched"] = matched
+  print(rslt)
 
   return jsonify(result=rslt)
 
-#@app.route("/_check", methods = ["POST"])
-#def check():
-#  """
-#  User has submitted the form with a word ('attempt')
-#  that should be formed from the jumble and on the
-#  vocabulary list.  We respond depending on whether
-#  the word is on the vocab list (therefore correctly spelled),
-#  made only from the jumble letters, and not a word they
-#  already found.
-#  """
-#  app.logger.debug("Entering check")
-#
-#  ## The data we need, from form and from cookie
-#  text = request.form["attempt"]
-#  jumble = flask.session["jumble"]
-#  matches = flask.session.get("matches", []) # Default to empty list
-#
-#  ## Is it good?
-#  in_jumble = LetterBag(jumble).contains(text)
-#  matched = WORDS.has(text)
-#
-#  ## Respond appropriately
-#  #if matched and in_jumble and not (text in matches):
-#  if in_jumble:
-#    ## Cool, they found a new word
-#    matches.append(text)
-#    flask.session["matches"] = matches
-#  elif text in matches:
-#    flask.flash("You already found {}".format(text))
-#  elif not matched:
-#    flask.flash("{} isn't in the list of words".format(text))
-#  elif not in_jumble:
-#    flask.flash('"{}" can\'t be made from the letters {}'.format(text,jumble))
-#  else:
-#    app.logger.debug("This case shouldn't happen!")
-#    assert False  # Raises AssertionError
-#
-#  # Choose page:  Solved enough, or keep going?
-#  if len(matches) >= flask.session["target_count"]:
-#    return flask.redirect(url_for("success"))
-#  else:
-#    return flask.redirect(url_for("keep_going"))
 
 ###############
 # AJAX request handlers
