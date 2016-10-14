@@ -24,5 +24,11 @@ def test_jumbled_pair():
 def test_jumbled_more():
     assert same( jumbled(["aabc", "abac", "bcaa"], 2), "aabc")
 
-    
+def test_empty():
+    assert same(jumbled([], 0),"");
+
+def test_jumbled_error_input():
+    assert not jumbled(["ab"],0)
+
+
 

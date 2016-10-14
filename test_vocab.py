@@ -45,3 +45,19 @@ def test_from_simulated_file():
     assert vocab.has("rats")
     assert vocab.has("squirrels")
     assert not vocab.has("#comment")
+def test_empty_has():
+    l = ["eeny", "moe", "miney", "meeny"];
+    vocab = Vocab(l)
+    assert not vocab.has("")
+    l = [];
+    vocab = Vocab(l)
+    assert not vocab.has("")
+
+def test_copy():
+    l = ['1','2','3','4'];
+    vocab = Vocab(l)
+    vocab1 = vocab
+    assert vocab1.has('1')
+    assert vocab1.has('2')
+
+
